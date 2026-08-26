@@ -27,6 +27,9 @@ const DEFAULTS = {
   videos: {},               // exId -> ссылка на видео пользователя
   favorites: [],
   body: [],                 // [{ date, weight, chest, waist, hips, arm, thigh, note }]
+  lastBackup: 0,            // когда последний раз делали резервную копию
+  backupSnooze: 0,          // когда напоминание о копии отложили
+  seenHelp: false,
   seenInstall: false
 };
 
@@ -334,6 +337,30 @@ export function setVideo(exId, url) {
 
 export function exportData() {
   return JSON.stringify({ app: 'FitPro', exported: new Date().toISOString(), state }, null, 2);
+}
+
+/** Скачивает резервную копию файлом и отмечает дату копии. */
+export function downloadBackup() {
+  const blob = new Blob([exportData()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `trenirovki-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  state.lastBackup = Date.now();
+  save();
+}
+
+/** Пора ли напомнить о резервной копии. */
+export function needsBackup() {
+  if (state.history.length < 4) return false;
+  if (Date.now() - (state.backupSnooze || 0) < 7 * 864e5) return false;
+  const last = state.lastBackup || 0;
+  if (!last) return true;
+  return Date.now() - last > 30 * 864e5;
 }
 
 export function importData(json) {

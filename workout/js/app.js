@@ -15,8 +15,9 @@ import * as Settings from './views/settings.js';
 import * as Builder from './views/builder.js';
 import * as Install from './views/install.js';
 import * as More from './views/more.js';
+import * as Help from './views/help.js';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 const ROUTES = [
   [/^\/?$/,                 () => Home.render(),                'Главная',      'home'],
@@ -34,7 +35,8 @@ const ROUTES = [
   [/^\/builder$/,           () => Builder.render(),             'Мои программы','more'],
   [/^\/builder\/(.+)$/,     m => Builder.renderEditor(m[1]),    'Редактор',     'more'],
   [/^\/install$/,           () => Install.render(),             'Установка',    'more'],
-  [/^\/more$/,              () => More.render(),                'Ещё',          'more']
+  [/^\/more$/,              () => More.render(),                'Ещё',          'more'],
+  [/^\/help$/,              () => Help.render(),                'Как пользоваться', 'more']
 ];
 
 const TABS = [

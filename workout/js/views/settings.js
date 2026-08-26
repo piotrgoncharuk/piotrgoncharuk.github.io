@@ -39,13 +39,9 @@ export function render() {
   root.appendChild(card('Данные', [
     h('p', { class: 'muted small', text: 'Всё хранится только на этом устройстве. Делайте резервную копию перед сменой телефона или очисткой браузера.' }),
     h('button', {
-      class: 'btn ghost block', text: '⬇️ Экспорт (файл .json)', onClick: () => {
-        const blob = new Blob([S.exportData()], { type: 'application/json' });
-        const a = h('a', { href: URL.createObjectURL(blob), download: `fitpro-backup-${new Date().toISOString().slice(0, 10)}.json` });
-        document.body.appendChild(a); a.click(); a.remove();
-        toast('Файл сохранён');
-      }
+      class: 'btn ghost block', text: '⬇️ Экспорт (файл .json)', onClick: () => { S.downloadBackup(); toast('Файл сохранён'); }
     }),
+    h('p', { class: 'muted small', id: 'backup-date', text: S.state.lastBackup ? 'Последняя копия: ' + new Date(S.state.lastBackup).toLocaleDateString('ru-RU') : 'Копия ещё не создавалась' }),
     h('button', {
       class: 'btn ghost block', text: '📋 Копировать данные в буфер', onClick: async () => {
         try { await navigator.clipboard.writeText(S.exportData()); toast('Скопировано'); }
@@ -71,6 +67,7 @@ export function render() {
   ]));
 
   root.appendChild(card('Приложение', [
+    h('a', { class: 'list-row', href: '#/help' }, [h('span', { class: 'list-title', text: '❓ Как пользоваться' }), h('span', { class: 'chev', text: '›' })]),
     h('a', { class: 'list-row', href: '#/install' }, [h('span', { class: 'list-title', text: '📱 Установить на iPhone / Android' }), h('span', { class: 'chev', text: '›' })]),
     h('div', { class: 'list-row' }, [h('span', { text: 'Версия' }), h('span', { class: 'muted', id: 'app-version', text: '1.0.0' })]),
     h('button', {

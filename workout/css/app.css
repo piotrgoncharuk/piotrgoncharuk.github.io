@@ -345,6 +345,31 @@ ol, ul { margin: 8px 0; padding-left: 20px; }
 .link-box { word-break: break-all; background: var(--bg-soft); padding: 10px 12px; border-radius: 10px; font-size: 13px; }
 .disclaimer { margin-top: 6px; opacity: .8; }
 
+/* ---------------------------------------------------------------- справка */
+.steps-num { display: flex; flex-direction: column; gap: 14px; }
+.step-item { display: flex; gap: 12px; align-items: flex-start; }
+.step-num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+  display: grid; place-items: center; margin-top: 1px;
+}
+.faq { border-bottom: 1px solid var(--line); }
+.faq:last-child { border-bottom: 0; }
+.faq-q {
+  appearance: none; background: none; border: 0; width: 100%; color: inherit; font: inherit;
+  font-weight: 600; font-size: 15px; text-align: left; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 2px;
+}
+.faq-q .chev { transition: transform .2s ease; }
+.faq.open .faq-q .chev { transform: rotate(180deg); }
+.faq-a { display: none; padding: 0 2px 13px; }
+.faq.open .faq-a { display: block; }
+.legend-sign {
+  flex: none; min-width: 30px; height: 30px; padding: 0 7px; border-radius: 9px;
+  background: var(--bg-soft); border: 1px solid var(--line);
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+}
+
 /* ---------------------------------------------------------------- таббар */
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;

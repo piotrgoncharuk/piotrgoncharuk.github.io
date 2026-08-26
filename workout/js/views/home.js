@@ -25,6 +25,31 @@ export function render() {
     h('h1', { class: 'hero-title', text: week.length ? 'Так держать 💪' : 'Начнём тренировку?' })
   ]));
 
+  // Первый запуск — короткая подсказка
+  if (!st.history.length && !st.seenHelp) {
+    root.appendChild(h('a', { class: 'card info', href: '#/help' }, [
+      h('div', { class: 'row between center' }, [
+        h('div', { class: 'grow' }, [
+          h('h3', { class: 'card-title', text: '❓ Первый раз здесь?' }),
+          h('p', { class: 'muted small', text: 'Шесть шагов до первой тренировки, установка иконки на телефон и ответы на частые вопросы.' })
+        ]),
+        h('span', { class: 'chev', text: '›' })
+      ])
+    ]));
+  }
+
+  // Пора сделать резервную копию
+  if (S.needsBackup()) {
+    root.appendChild(h('section', { class: 'card warn' }, [
+      h('h3', { class: 'card-title', text: '💾 Сделайте резервную копию' }),
+      h('p', { class: 'muted small', text: 'История хранится только на этом устройстве. Сохраните файл в iCloud или отправьте себе — восстановить можно в пару нажатий.' }),
+      h('div', { class: 'row gap wrap' }, [
+        h('button', { class: 'btn small', text: '⬇️ Сохранить копию', onClick: () => { S.downloadBackup(); toast('Копия сохранена'); window.dispatchEvent(new HashChangeEvent('hashchange')); } }),
+        h('button', { class: 'btn small ghost', text: 'Позже', onClick: () => { S.state.backupSnooze = Date.now(); S.save(); window.dispatchEvent(new HashChangeEvent('hashchange')); } })
+      ])
+    ]));
+  }
+
   // Незавершённая тренировка
   if (st.session) {
     root.appendChild(h('a', { class: 'card accent-card', href: '#/workout' }, [
@@ -100,7 +125,7 @@ export function render() {
     quickTile('⏱', 'Таймеры', () => { location.hash = '#/tools'; }),
     quickTile('🎬', 'Упражнения', () => { location.hash = '#/exercises'; }),
     quickTile('📈', 'Прогресс', () => { location.hash = '#/stats'; }),
-    quickTile('⚖️', 'Замеры тела', () => { location.hash = '#/body'; }),
+    quickTile('❓', 'Как пользоваться', () => { location.hash = '#/help'; }),
     quickTile('🔁', 'Повторить последнюю', () => {
       const last = st.history[st.history.length - 1];
       if (!last) return toast('Истории пока нет');
