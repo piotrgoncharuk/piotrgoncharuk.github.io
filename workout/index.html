@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Тренировки — программы и техника</title>
+<meta name="description" content="Бесплатное приложение для тренировок: 10 программ, 97 упражнений с техникой и видео-инструкциями, дневник, таймеры и статистика. Работает офлайн.">
+<meta name="theme-color" content="#0e1117">
+<meta name="color-scheme" content="light dark">
+
+<!-- iOS: полноэкранный режим с домашнего экрана -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Тренировки">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="manifest" href="manifest.webmanifest">
+
+<meta property="og:title" content="Тренировки — программы и техника">
+<meta property="og:description" content="Программы, видео-инструкции к каждому упражнению, дневник и таймеры. Бесплатно и офлайн.">
+<meta property="og:type" content="website">
+
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main id="app">
+    <div class="view">
+      <div class="empty">
+        <div class="empty-icon">🏋️</div>
+        <h3>Загрузка…</h3>
+      </div>
+    </div>
+  </main>
+
+  <noscript>
+    <div style="padding:24px;text-align:center">
+      <h2>Нужен JavaScript</h2>
+      <p>Включите JavaScript в настройках браузера, чтобы пользоваться приложением.</p>
+    </div>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+  <script nomodule>
+    document.getElementById('app').innerHTML =
+      '<div style="padding:24px;text-align:center"><h2>Браузер устарел</h2><p>Обновите браузер — приложению нужны современные возможности.</p></div>';
+  </script>
+</body>
+</html>
