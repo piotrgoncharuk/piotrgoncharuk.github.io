@@ -1,5 +1,5 @@
 // Service worker: офлайн-режим и кэш приложения.
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.2.0';
 const CACHE = `fitpro-${VERSION}`;
 
 const ASSETS = [
@@ -12,8 +12,10 @@ const ASSETS = [
   './js/ui.js',
   './js/charts.js',
   './js/timer.js',
+  './js/share.js',
   './js/data/exercises.js',
   './js/data/programs.js',
+  './js/data/football.js',
   './js/views/home.js',
   './js/views/programs.js',
   './js/views/exercises.js',
@@ -27,6 +29,9 @@ const ASSETS = [
   './js/views/install.js',
   './js/views/more.js',
   './js/views/help.js',
+  './js/views/football.js',
+  './js/views/profiles.js',
+  './js/views/achievements.js',
   './data/videos.json',
   './icons/icon-180.png',
   './icons/icon-192.png',

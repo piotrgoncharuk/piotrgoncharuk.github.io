@@ -1,9 +1,10 @@
 // Готовые программы тренировок.
 // item: [id упражнения, подходы, повторы, отдых(сек), заметка?, суперсет-группа?]
+import { FOOTBALL_PROGRAMS } from './football.js';
 
 const it = (id, sets, reps, rest, note = '', ss = null) => ({ id, sets, reps, rest, note, ss });
 
-export const PROGRAMS = [
+const BASE_PROGRAMS = [
   {
     id: 'fullbody_start',
     name: 'Старт: всё тело',
@@ -424,4 +425,5 @@ export const PROGRAMS = [
   }
 ];
 
+export const PROGRAMS = [...BASE_PROGRAMS, ...FOOTBALL_PROGRAMS];
 export const PROG_BY_ID = Object.fromEntries(PROGRAMS.map(p => [p.id, p]));

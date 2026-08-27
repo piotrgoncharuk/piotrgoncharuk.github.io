@@ -370,6 +370,91 @@ ol, ul { margin: 8px 0; padding-left: 20px; }
   display: grid; place-items: center; font-weight: 700; font-size: 14px;
 }
 
+/* ---------------------------------------------------------------- профили */
+.profile-chip {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 12px 6px 8px; font-size: 18px; box-shadow: var(--shadow);
+}
+.profile-chip .tiny { font-size: 12px; font-weight: 600; color: var(--text); }
+.profile-row { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); }
+.profile-row:last-of-type { border-bottom: 0; }
+.profile-row.active .profile-main { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 12px; }
+.profile-main {
+  appearance: none; background: none; border: 0; color: inherit; font: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 12px; flex: 1; text-align: left; padding: 12px 8px;
+}
+.profile-emoji { font-size: 26px; width: 34px; text-align: center; flex: none; }
+.emoji-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.emoji-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--bg-soft);
+  border-radius: 14px; font-size: 28px; padding: 14px 0; cursor: pointer;
+}
+.emoji-btn:active { transform: scale(.95); }
+
+/* ---------------------------------------------------------------- футбол */
+.type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.type-tile {
+  appearance: none; border: 1px solid var(--line); background: var(--bg-soft); color: var(--text);
+  border-radius: 14px; padding: 12px 8px; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
+}
+.type-tile.on { background: var(--accent); color: #fff; border-color: transparent; font-weight: 600; }
+.type-icon { font-size: 22px; }
+.score-row { display: grid; grid-template-columns: 1fr 20px 1fr; align-items: end; gap: 8px; }
+.score-sep { text-align: center; font-size: 22px; font-weight: 700; padding-bottom: 10px; }
+.counter { display: flex; align-items: center; gap: 8px; }
+.counter-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--bg-soft); color: var(--text);
+  width: 44px; height: 44px; border-radius: 12px; font-size: 22px; cursor: pointer; font-weight: 700;
+}
+.counter-btn:active { transform: scale(.94); }
+.counter-value { flex: 1; text-align: center; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.range {
+  appearance: none; width: 100%; height: 34px; background: transparent; margin: 0;
+}
+.range::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); }
+.range::-webkit-slider-thumb {
+  appearance: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent);
+  border: 3px solid var(--bg-card); margin-top: -12px; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.range::-moz-range-track { height: 8px; border-radius: 999px; background: var(--bg-soft); }
+.range::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg-card); }
+.rpe-value { font-size: 19px; font-weight: 700; text-align: center; }
+
+/* ---------------------------------------------------------------- нагрузка */
+.load-card { border-left: 4px solid var(--accent); }
+.load-card.good { border-left-color: var(--accent-2); }
+.load-card.warn { border-left-color: var(--warn); }
+.load-card.danger { border-left-color: var(--danger); }
+.load-ratio { display: flex; flex-direction: column; align-items: center; flex: none; }
+.load-value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pill.zone-ok { background: color-mix(in srgb, var(--accent-2) 22%, transparent); color: var(--accent-2); }
+.pill.zone-low { background: var(--bg-soft); color: var(--muted); }
+.pill.zone-warn { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); }
+.pill.zone-high { background: color-mix(in srgb, var(--danger) 20%, transparent); color: var(--danger); }
+.pill.zone-none { background: var(--bg-soft); color: var(--muted); }
+
+/* ---------------------------------------------------------------- достижения */
+.progress-line { height: 8px; border-radius: 999px; background: var(--bg-soft); overflow: hidden; }
+.progress-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.badge {
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 14px 8px; text-align: center; display: flex; flex-direction: column; gap: 4px; opacity: .55;
+}
+.badge.on { opacity: 1; border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); box-shadow: var(--shadow); }
+.badge-icon { font-size: 28px; }
+.badge-name { font-size: 13px; font-weight: 700; }
+.badge-desc { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.badge-mini {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+  opacity: .5;
+}
+.badge-mini.on { opacity: 1; border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+
 /* ---------------------------------------------------------------- таббар */
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;

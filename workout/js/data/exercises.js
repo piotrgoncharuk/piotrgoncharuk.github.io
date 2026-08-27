@@ -1,4 +1,5 @@
 // База упражнений. Каждое упражнение содержит технику, ошибки и запрос для видео-инструкции.
+import { FOOTBALL_RAW } from './football.js';
 
 export const GROUPS = {
   chest:     { title: 'Грудь',        icon: '🫁' },
@@ -8,8 +9,16 @@ export const GROUPS = {
   arms:      { title: 'Руки',         icon: '💪' },
   core:      { title: 'Пресс и кор',  icon: '🎯' },
   cardio:    { title: 'Кардио',       icon: '🔥' },
-  mobility:  { title: 'Мобильность',  icon: '🧘' }
+  mobility:  { title: 'Мобильность',  icon: '🧘' },
+  football:  { title: 'Футбол: техника', icon: '⚽️' },
+  speed:     { title: 'Скорость',     icon: '💨' },
+  endurance: { title: 'Выносливость', icon: '🫀' },
+  gk:        { title: 'Вратарь',      icon: '🧤' },
+  prehab:    { title: 'Профилактика травм', icon: '🛡' }
 };
+
+/** Группы, относящиеся к футболу — используются для фильтров и статистики. */
+export const FOOTBALL_GROUPS = ['football', 'speed', 'endurance', 'gk', 'prehab'];
 
 export const LEVELS = { 1: 'Новичок', 2: 'Средний', 3: 'Продвинутый' };
 
@@ -752,7 +761,7 @@ const RAW = [
 ];
 
 // Дополняем данными по умолчанию и поисковыми запросами для видео.
-export const EXERCISES = RAW.map(e => ({
+export const EXERCISES = [...RAW, ...FOOTBALL_RAW].map(e => ({
   ...e,
   secondary: e.secondary || [],
   tips: e.tips || [],

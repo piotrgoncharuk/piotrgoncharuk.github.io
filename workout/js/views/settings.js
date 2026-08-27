@@ -37,11 +37,21 @@ export function render() {
 
   // Данные
   root.appendChild(card('Данные', [
-    h('p', { class: 'muted small', text: 'Всё хранится только на этом устройстве. Делайте резервную копию перед сменой телефона или очисткой браузера.' }),
+    h('p', { class: 'muted small', text: 'Всё хранится только на этом устройстве. Резервная копия включает все профили — делайте её перед сменой телефона или очисткой браузера.' }),
     h('button', {
       class: 'btn ghost block', text: '⬇️ Экспорт (файл .json)', onClick: () => { S.downloadBackup(); toast('Файл сохранён'); }
     }),
     h('p', { class: 'muted small', id: 'backup-date', text: S.state.lastBackup ? 'Последняя копия: ' + new Date(S.state.lastBackup).toLocaleDateString('ru-RU') : 'Копия ещё не создавалась' }),
+    h('button', {
+      class: 'btn ghost block', text: '📊 Экспорт истории в CSV (Excel)', onClick: () => {
+        const blob = new Blob([S.exportCSV()], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = h('a', { href: url, download: `trenirovki-${new Date().toISOString().slice(0, 10)}.csv` });
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast('CSV сохранён');
+      }
+    }),
     h('button', {
       class: 'btn ghost block', text: '📋 Копировать данные в буфер', onClick: async () => {
         try { await navigator.clipboard.writeText(S.exportData()); toast('Скопировано'); }
@@ -52,7 +62,11 @@ export function render() {
       const file = h('input', { type: 'file', accept: 'application/json', class: 'hidden' });
       file.addEventListener('change', async () => {
         const f = file.files[0]; if (!f) return;
-        try { S.importData(await f.text()); toast('Данные восстановлены'); location.hash = '#/'; }
+        try {
+          const res = S.importData(await f.text());
+          toast('Данные восстановлены');
+          if (res && res.reload) { location.hash = '#/'; location.reload(); } else location.hash = '#/';
+        }
         catch (e) { toast('Файл повреждён'); }
       });
       const btn = h('button', { class: 'btn ghost block', text: '⬆️ Импорт из файла', onClick: () => file.click() });
@@ -67,6 +81,7 @@ export function render() {
   ]));
 
   root.appendChild(card('Приложение', [
+    h('a', { class: 'list-row', href: '#/profiles' }, [h('span', { class: 'list-title', text: '👥 Профили' }), h('span', { class: 'chev', text: '›' })]),
     h('a', { class: 'list-row', href: '#/help' }, [h('span', { class: 'list-title', text: '❓ Как пользоваться' }), h('span', { class: 'chev', text: '›' })]),
     h('a', { class: 'list-row', href: '#/install' }, [h('span', { class: 'list-title', text: '📱 Установить на iPhone / Android' }), h('span', { class: 'chev', text: '›' })]),
     h('div', { class: 'list-row' }, [h('span', { text: 'Версия' }), h('span', { class: 'muted', id: 'app-version', text: '1.0.0' })]),
