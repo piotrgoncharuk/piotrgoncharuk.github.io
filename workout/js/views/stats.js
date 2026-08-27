@@ -27,6 +27,53 @@ export function render() {
     tile(String(S.streakDays()), plural(S.streakDays(), 'день', 'дня', 'дней'), 'серия')
   ]));
 
+  // ---- тренировочная нагрузка
+  const load = S.acwr();
+  const lw = S.loadByWeek(8);
+  const zoneText = {
+    none: ['Копим данные', 'Соотношение появится, когда наберётся около месяца регулярных занятий — раньше оно вводит в заблуждение.'],
+    low:  ['Снижена', 'Объём ниже привычного. Хорошо для разгрузочной недели, но не как норма.'],
+    ok:   ['В норме', 'Идеальный коридор: нагрузка растёт плавно (0.8–1.3).'],
+    warn: ['Растёт быстро', 'Вы на верхней границе. Следите за сном, питанием и болями.'],
+    high: ['Скачок', 'Резкий рост объёма — самый частый предвестник травмы. Сделайте лёгкую неделю.']
+  }[load.zone];
+
+  root.appendChild(h('section', { class: 'card' }, [
+    h('div', { class: 'row between center' }, [
+      h('h3', { class: 'card-title', text: 'Тренировочная нагрузка' }),
+      h('span', { class: 'pill zone-' + load.zone, text: zoneText[0] })
+    ]),
+    barChart(lw.map(w => ({ label: w.label, value: w.load })), { format: v => v >= 1000 ? Math.round(v / 100) / 10 + 'к' : String(v), color: 'var(--accent-2)' }),
+    h('div', { class: 'stats' }, [
+      tile(String(load.acute), 'за 7 дней'),
+      tile(String(load.chronic), 'средняя неделя'),
+      tile(load.ratio !== null ? load.ratio.toFixed(2) : '—', 'соотношение')
+    ]),
+    h('p', { class: 'muted small', text: zoneText[1] }),
+    h('p', { class: 'muted small', text: 'Нагрузка = тяжесть занятия (1–10) × минуты. Методику используют в профессиональном спорте, чтобы вовремя заметить перегруз.' })
+  ]));
+
+  // ---- футбол
+  const fb = S.footballStats();
+  if (fb.total) {
+    root.appendChild(h('section', { class: 'card' }, [
+      h('div', { class: 'row between center' }, [
+        h('h3', { class: 'card-title', text: '⚽️ Футбол' }),
+        h('a', { class: 'link', href: '#/football', text: 'Записать' })
+      ]),
+      h('div', { class: 'stats' }, [
+        tile(String(fb.total), 'занятий'),
+        tile(String(fb.matches), 'матчей'),
+        tile(String(fb.goals), 'голов'),
+        tile(String(fb.assists), 'передач'),
+        tile(Math.round(fb.minutes / 60) + ' ч', 'на поле'),
+        fb.distance ? tile(fmtNum(fb.distance, 1) + ' км', 'пробежано') : null
+      ].filter(Boolean)),
+      fb.matches ? h('p', { class: 'muted small', text: `Матчи: ${fb.wins} побед · ${fb.draws} ничьих · ${fb.losses} поражений` +
+        (fb.matches && fb.goals ? ` · ${(fb.goals / fb.matches).toFixed(2)} гола за матч` : '') }) : null
+    ]));
+  }
+
   // объём по неделям
   const vw = S.volumeByWeek(8);
   root.appendChild(h('section', { class: 'card' }, [
@@ -71,6 +118,20 @@ export function render() {
       ])))
     ]));
   }
+
+  // ---- достижения
+  const badges = S.achievements();
+  const opened = badges.filter(b => b.done);
+  root.appendChild(h('section', { class: 'card' }, [
+    h('div', { class: 'row between center' }, [
+      h('h3', { class: 'card-title', text: '🏆 Достижения' }),
+      h('a', { class: 'link', href: '#/achievements', text: `${opened.length} из ${badges.length}` })
+    ]),
+    h('div', { class: 'scroll-chips' }, (opened.length ? opened : badges).slice(-8).map(b =>
+      h('span', { class: 'badge-mini' + (b.done ? ' on' : ''), title: b.desc }, [
+        h('span', { text: b.done ? b.icon : '🔒' }), h('span', { class: 'tiny', text: b.name })
+      ])))
+  ]));
 
   // прогресс по конкретному упражнению
   const trained = [...new Set(S.state.history.flatMap(s => s.items.map(i => i.exId)))];

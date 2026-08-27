@@ -16,15 +16,18 @@ import * as Builder from './views/builder.js';
 import * as Install from './views/install.js';
 import * as More from './views/more.js';
 import * as Help from './views/help.js';
+import * as Football from './views/football.js';
+import * as Profiles from './views/profiles.js';
+import * as Achievements from './views/achievements.js';
 
-export const VERSION = '1.1.0';
+export const VERSION = '1.2.0';
 
 const ROUTES = [
   [/^\/?$/,                 () => Home.render(),                'Главная',      'home'],
   [/^\/programs$/,          () => Programs.render(),            'Программы',    'programs'],
   [/^\/program\/(.+)$/,     m => Programs.renderDetail(m[1]),   'Программа',    'programs'],
-  [/^\/exercises$/,         () => Exercises.render(),           'Упражнения',   'exercises'],
-  [/^\/exercise\/(.+)$/,    m => Exercises.renderDetail(m[1]),  'Упражнение',   'exercises'],
+  [/^\/exercises$/,         () => Exercises.render(),           'Упражнения',   'more'],
+  [/^\/exercise\/(.+)$/,    m => Exercises.renderDetail(m[1]),  'Упражнение',   'more'],
   [/^\/workout$/,           () => Workout.render(),             'Тренировка',   'home'],
   [/^\/history$/,           () => History.render(),             'История',      'more'],
   [/^\/history\/(.+)$/,     m => History.renderDetail(m[1]),    'Тренировка',   'more'],
@@ -36,13 +39,17 @@ const ROUTES = [
   [/^\/builder\/(.+)$/,     m => Builder.renderEditor(m[1]),    'Редактор',     'more'],
   [/^\/install$/,           () => Install.render(),             'Установка',    'more'],
   [/^\/more$/,              () => More.render(),                'Ещё',          'more'],
-  [/^\/help$/,              () => Help.render(),                'Как пользоваться', 'more']
+  [/^\/help$/,              () => Help.render(),                'Как пользоваться', 'more'],
+  [/^\/football$/,          () => Football.render(),            'Футбол',       'football'],
+  [/^\/football\/(.+)$/,    m => Football.render(m[1]),         'Футбол',       'football'],
+  [/^\/profiles$/,          () => Profiles.render(),            'Профили',      'more'],
+  [/^\/achievements$/,      () => Achievements.render(),        'Достижения',   'stats']
 ];
 
 const TABS = [
   ['home', '#/', '🏠', 'Главная'],
   ['programs', '#/programs', '📋', 'Программы'],
-  ['exercises', '#/exercises', '🎬', 'Упражнения'],
+  ['football', '#/football', '⚽️', 'Футбол'],
   ['stats', '#/stats', '📈', 'Прогресс'],
   ['more', '#/more', '⋯', 'Ещё']
 ];

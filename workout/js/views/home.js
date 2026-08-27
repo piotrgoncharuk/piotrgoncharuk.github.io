@@ -20,8 +20,15 @@ export function render() {
 
   const root = h('div', { class: 'view' });
 
+  const prof = S.activeProfile();
   root.appendChild(h('header', { class: 'hero' }, [
-    h('p', { class: 'hero-sub', text: `${greeting()}${st.settings.name ? ', ' + st.settings.name : ''}!` }),
+    h('div', { class: 'row between center' }, [
+      h('p', { class: 'hero-sub', text: `${greeting()}${prof && prof.name ? ', ' + prof.name : ''}!` }),
+      h('a', { class: 'profile-chip', href: '#/profiles', title: 'Профили' }, [
+        h('span', { text: (prof && prof.emoji) || '💪' }),
+        S.profiles.length > 1 ? h('span', { class: 'tiny', text: prof ? prof.name : '' }) : null
+      ])
+    ]),
     h('h1', { class: 'hero-title', text: week.length ? 'Так держать 💪' : 'Начнём тренировку?' })
   ]));
 
@@ -124,8 +131,8 @@ export function render() {
     }),
     quickTile('⏱', 'Таймеры', () => { location.hash = '#/tools'; }),
     quickTile('🎬', 'Упражнения', () => { location.hash = '#/exercises'; }),
-    quickTile('📈', 'Прогресс', () => { location.hash = '#/stats'; }),
-    quickTile('❓', 'Как пользоваться', () => { location.hash = '#/help'; }),
+    quickTile('🏆', 'Достижения', () => { location.hash = '#/achievements'; }),
+    quickTile('⚽️', 'Записать футбол', () => { location.hash = '#/football'; }),
     quickTile('🔁', 'Повторить последнюю', () => {
       const last = st.history[st.history.length - 1];
       if (!last) return toast('Истории пока нет');
@@ -139,6 +146,32 @@ export function render() {
       location.hash = '#/workout';
     })
   ]));
+
+  // Тренировочная нагрузка
+  const load = S.acwr();
+  if (load.ratio !== null) {
+    const zone = {
+      low:  ['Нагрузка снижена', 'Объём заметно ниже привычного — можно добавить работы.', 'ok'],
+      ok:   ['Нагрузка в норме', 'Объём растёт плавно — так меньше риск травм и перетренированности.', 'good'],
+      warn: ['Нагрузка растёт быстро', 'Рост выше привычного. Следите за сном и самочувствием.', 'warn'],
+      high: ['Резкий скачок нагрузки', 'Объём сильно выше обычного — самый частый предвестник травмы. Стоит сделать лёгкую неделю.', 'danger']
+    }[load.zone] || null;
+    if (zone) {
+      root.appendChild(h('section', { class: 'card load-card ' + zone[2] }, [
+        h('div', { class: 'row between center' }, [
+          h('div', { class: 'grow' }, [
+            h('h3', { class: 'card-title', text: zone[0] }),
+            h('p', { class: 'muted small', text: zone[1] })
+          ]),
+          h('div', { class: 'load-ratio' }, [
+            h('span', { class: 'load-value', text: load.ratio.toFixed(2) }),
+            h('span', { class: 'tiny muted', text: 'неделя / норма' })
+          ])
+        ]),
+        h('a', { class: 'link', href: '#/stats', text: 'Подробнее о нагрузке →' })
+      ]));
+    }
+  }
 
   // График объёма
   const vw = S.volumeByWeek(6);

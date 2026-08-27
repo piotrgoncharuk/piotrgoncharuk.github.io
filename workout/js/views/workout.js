@@ -1,6 +1,7 @@
 import { h, toast, confirmDialog, promptDialog, sheet, mmss, fmtDuration, fmtNum, plural, emptyState, haptic } from '../ui.js';
 import * as S from '../store.js';
 import { restTimer, unlockAudio } from '../timer.js';
+import { shareSession } from '../share.js';
 
 let tickHandle = null;
 
@@ -245,6 +246,19 @@ async function finish(root) {
   const newPRs = prsAfter.filter(r => !prsBefore[r.exId] || r.e1rm > prsBefore[r.exId] + 0.01)
     .filter(r => finished.items.some(i => i.exId === r.exId));
 
+  const RPE_HINTS = { 1: 'очень легко', 2: 'легко', 3: 'умеренно', 4: 'средне', 5: 'заметно тяжело', 6: 'тяжело', 7: 'очень тяжело', 8: 'на пределе', 9: 'почти максимум', 10: 'максимум' };
+  const rpeStart = 7;
+  finished.rpe = rpeStart;
+  S.save(false);
+  const rpeLabel = h('div', { class: 'rpe-value', text: `${rpeStart} — ${RPE_HINTS[rpeStart]}` });
+  const rpeInput = h('input', { class: 'range', type: 'range', min: '1', max: '10', step: '1', value: String(rpeStart) });
+  rpeInput.addEventListener('input', () => {
+    const v = parseInt(rpeInput.value, 10);
+    finished.rpe = v;
+    rpeLabel.textContent = `${v} — ${RPE_HINTS[v]}`;
+    S.save(false);
+  });
+
   const body = h('div', { class: 'stack center-text' }, [
     h('div', { class: 'big-emoji', text: '🎉' }),
     h('h2', { text: 'Тренировка завершена' }),
@@ -254,6 +268,12 @@ async function finish(root) {
       tile(fmtNum(S.sessionVolume(finished)) + ' кг', 'тоннаж'),
       tile(String(S.sessionReps(finished)), 'повторов')
     ]),
+    h('div', { class: 'card' }, [
+      h('h3', { class: 'card-title', text: 'Насколько тяжело было?' }),
+      rpeLabel,
+      rpeInput,
+      h('p', { class: 'muted small', text: 'Оценка нужна для расчёта тренировочной нагрузки — она подскажет, когда объём растёт слишком резко.' })
+    ]),
     newPRs.length ? h('div', { class: 'card tip' }, [
       h('h3', { class: 'card-title', text: '🏆 Новые рекорды' }),
       h('ul', { class: 'bullets' }, newPRs.map(r => h('li', { text: `${S.exerciseById(r.exId)?.name || r.exId}: ${fmtNum(r.w, 1)} кг × ${r.r} (1ПМ ≈ ${fmtNum(r.e1rm, 1)} кг)` })))
@@ -262,8 +282,8 @@ async function finish(root) {
 
   const sh = sheet('Отлично!', body, {
     actions: [
-      h('button', { class: 'btn ghost', text: 'К истории', onClick: () => { sh.close(); location.hash = `#/history/${finished.id}`; } }),
-      h('button', { class: 'btn', text: 'На главную', onClick: () => { sh.close(); location.hash = '#/'; } })
+      h('button', { class: 'btn ghost', text: '📤 Поделиться', onClick: () => shareSession(finished) }),
+      h('button', { class: 'btn', text: 'Готово', onClick: () => { sh.close(); location.hash = '#/'; } })
     ]
   });
   function tile(v, l) { return h('div', { class: 'stat' }, [h('div', { class: 'stat-value', text: v }), h('div', { class: 'stat-label', text: l })]); }
