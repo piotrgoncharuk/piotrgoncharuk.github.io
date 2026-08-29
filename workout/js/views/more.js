@@ -1,5 +1,6 @@
-import { h } from '../ui.js';
+import { h, toast } from '../ui.js';
 import * as S from '../store.js';
+import { VERSION, forceUpdate } from '../app.js';
 
 const LINKS = [
   ['#/help', '❓', 'Как пользоваться', 'Инструкция, частые вопросы, обозначения'],
@@ -30,8 +31,17 @@ export function render() {
     ]))));
 
   root.appendChild(h('section', { class: 'card' }, [
-    h('h3', { class: 'card-title', text: 'Коротко о приложении' }),
-    h('p', { class: 'muted small', text: `${S.allExercises().length} упражнений с техникой и видео, ${S.allPrograms().length} программ, дневник, статистика и таймеры. Без рекламы, без подписки, без аккаунта — все данные остаются на вашем устройстве.` })
+    h('div', { class: 'row between center' }, [
+      h('h3', { class: 'card-title', text: 'Коротко о приложении' }),
+      h('span', { class: 'pill', text: 'v' + VERSION })
+    ]),
+    h('p', { class: 'muted small', text: `${S.allExercises().length} упражнений с техникой и видео, ${S.allPrograms().length} программ, дневник, статистика и таймеры. Без рекламы, без подписки, без аккаунта — все данные остаются на вашем устройстве.` }),
+    h('button', {
+      class: 'btn ghost small', text: '🔄 Обновить до последней версии', onClick: async () => {
+        toast('Загружаю свежую версию…');
+        await forceUpdate();
+      }
+    })
   ]));
   return root;
 }

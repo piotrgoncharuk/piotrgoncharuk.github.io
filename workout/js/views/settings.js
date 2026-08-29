@@ -1,6 +1,6 @@
 import { h, segmented, toast, confirmDialog, promptDialog } from '../ui.js';
 import * as S from '../store.js';
-import { applyTheme } from '../app.js';
+import { applyTheme, forceUpdate, VERSION } from '../app.js';
 
 export function render() {
   const root = h('div', { class: 'view' });
@@ -84,14 +84,14 @@ export function render() {
     h('a', { class: 'list-row', href: '#/profiles' }, [h('span', { class: 'list-title', text: '👥 Профили' }), h('span', { class: 'chev', text: '›' })]),
     h('a', { class: 'list-row', href: '#/help' }, [h('span', { class: 'list-title', text: '❓ Как пользоваться' }), h('span', { class: 'chev', text: '›' })]),
     h('a', { class: 'list-row', href: '#/install' }, [h('span', { class: 'list-title', text: '📱 Установить на iPhone / Android' }), h('span', { class: 'chev', text: '›' })]),
-    h('div', { class: 'list-row' }, [h('span', { text: 'Версия' }), h('span', { class: 'muted', id: 'app-version', text: '1.0.0' })]),
+    h('div', { class: 'list-row' }, [h('span', { text: 'Версия' }), h('span', { class: 'muted', id: 'app-version', text: VERSION })]),
     h('button', {
-      class: 'list-row btn-row', text: '🔄 Проверить обновление', onClick: async () => {
-        if (!('serviceWorker' in navigator)) return toast('Не поддерживается');
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (reg) { await reg.update(); toast('Проверка запущена — перезапустите приложение'); }
+      class: 'list-row btn-row', text: '🔄 Обновить приложение', onClick: async () => {
+        toast('Загружаю свежую версию…');
+        await forceUpdate();
       }
     }),
+    h('p', { class: 'muted small', text: 'Обновления приходят сами при запуске. Кнопка выше очищает офлайн-кэш и загружает последнюю версию принудительно — данные тренировок при этом не трогаются.' }),
     h('p', { class: 'muted small', text: 'Приложение работает офлайн и не требует регистрации. Данные никуда не отправляются.' })
   ]));
 

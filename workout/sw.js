@@ -1,5 +1,5 @@
 // Service worker: офлайн-режим и кэш приложения.
-const VERSION = 'v1.3.0';
+const VERSION = 'v1.3.1';
 const CACHE = `fitpro-${VERSION}`;
 
 const ASSETS = [
@@ -56,6 +56,16 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Приложение просит применить обновление немедленно
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+/** Код приложения обновляем из сети, а картинки берём из кэша. */
+function isAppCode(url) {
+  return /\.(js|css|html|webmanifest|json)$/.test(url.pathname) || url.pathname.endsWith('/');
+}
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -74,7 +84,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Остальное: кэш с фоновым обновлением
+  // Код приложения: сначала сеть (обновления приходят сразу), кэш — как запасной вариант офлайн
+  if (isAppCode(url)) {
+    e.respondWith(
+      fetch(req).then(res => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy));
+        }
+        return res;
+      }).catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Картинки и прочее: кэш с фоновым обновлением
   e.respondWith(
     caches.match(req).then(cached => {
       const network = fetch(req).then(res => {

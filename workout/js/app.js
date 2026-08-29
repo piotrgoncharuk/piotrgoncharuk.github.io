@@ -22,7 +22,7 @@ import * as Achievements from './views/achievements.js';
 import * as CoachView from './views/coach.js';
 import * as Plan from './views/plan.js';
 
-export const VERSION = '1.3.0';
+export const VERSION = '1.3.1';
 
 const ROUTES = [
   [/^\/?$/,                 () => Home.render(),                'Главная',      'home'],
@@ -185,23 +185,72 @@ function boot() {
     }
   });
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        reg.addEventListener('updatefound', () => {
-          const nw = reg.installing;
-          if (!nw) return;
-          nw.addEventListener('statechange', () => {
-            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              toast('Доступна новая версия — перезапустите приложение');
-            }
-          });
-        });
-      }).catch(() => {});
-    });
-  }
+  if ('serviceWorker' in navigator) setupServiceWorker();
 
   document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+}
+
+/** Обновления приложения: проверяем при запуске и при возврате к приложению. */
+function setupServiceWorker() {
+  let reg = null;
+  let lastCheck = 0;
+
+  const applyUpdate = worker => {
+    // Во время тренировки не перезагружаем — обновимся, когда она закончится
+    if (S.state.session) {
+      toast('Новая версия загружена — применится после тренировки');
+      return;
+    }
+    worker.postMessage({ type: 'SKIP_WAITING' });
+  };
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (sessionStorage.getItem('fitpro.reloaded')) return;   // защита от цикла перезагрузок
+    sessionStorage.setItem('fitpro.reloaded', '1');
+    location.reload();
+  });
+
+  const check = () => {
+    if (!reg || Date.now() - lastCheck < 60000) return;
+    lastCheck = Date.now();
+    reg.update().catch(() => {});
+  };
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(r => {
+      reg = r;
+      lastCheck = Date.now();
+      if (r.waiting && navigator.serviceWorker.controller) applyUpdate(r.waiting);
+      r.addEventListener('updatefound', () => {
+        const nw = r.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) applyUpdate(nw);
+        });
+      });
+      setTimeout(check, 3000);
+    }).catch(() => {});
+  });
+
+  // iOS часто не перезагружает страницу, а «просыпается» — проверяем обновления при возврате
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+  window.addEventListener('focus', check);
+}
+
+/** Полный сброс кэша приложения — на случай, если обновление где-то застряло. */
+export async function forceUpdate() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch (e) { /* не критично */ }
+  sessionStorage.removeItem('fitpro.reloaded');
+  location.replace(location.pathname + '?v=' + Date.now() + location.hash);
 }
 
 boot();
