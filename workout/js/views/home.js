@@ -71,9 +71,75 @@ export function render() {
     ]));
   }
 
+  // Сегодня по плану
+  const todayEntry = S.todayPlan();
+  const tomorrowEntry = S.tomorrowPlan();
+  const todayLabel = S.planLabel(todayEntry);
+  const tomorrowLabel = S.planLabel(tomorrowEntry);
+  const planCoversToday = !!todayEntry && (todayEntry.type === 'program' || todayEntry.type === 'program_auto');
+
+  if (todayLabel) {
+    const actions = h('div', { class: 'row gap wrap' });
+    if (todayEntry.type === 'football') {
+      actions.appendChild(h('a', { class: 'btn', href: '#/football', text: 'Записать после игры' }));
+      actions.appendChild(h('button', {
+        class: 'btn ghost', text: 'Разминка 15 мин', onClick: () => {
+          S.startSession({ programId: 'fb_warmup', dayIndex: 0 });
+          location.hash = '#/workout';
+        }
+      }));
+    } else if (planCoversToday) {
+      const pid = todayEntry.type === 'program' ? todayEntry.programId : (st.activeProgram || {}).id;
+      const di = todayEntry.type === 'program' ? todayEntry.dayIndex : ((st.activeProgram || {}).nextDay || 0);
+      if (pid) actions.appendChild(h('button', {
+        class: 'btn', text: 'Начать тренировку', onClick: async () => {
+          if (st.session && !confirm('Есть незавершённая тренировка. Начать новую?')) return;
+          S.startSession({ programId: pid, dayIndex: di });
+          location.hash = '#/workout';
+        }
+      }));
+    } else {
+      actions.appendChild(h('a', { class: 'btn ghost', href: '#/coach', text: 'Спросить тренера' }));
+    }
+    actions.appendChild(h('a', { class: 'btn ghost', href: '#/plan', text: 'План' }));
+
+    root.appendChild(h('section', { class: 'card plan-card' }, [
+      h('div', { class: 'card-kicker', text: 'Сегодня по плану' }),
+      h('h3', { class: 'card-title', text: `${todayLabel.icon} ${todayLabel.title}` }),
+      todayLabel.sub ? h('p', { class: 'muted small', text: todayLabel.sub }) : null,
+      tomorrowLabel ? h('p', { class: 'muted small', text: `Завтра: ${tomorrowLabel.icon} ${tomorrowLabel.title}` }) : null,
+      actions
+    ]));
+  } else if (!st.history.length && !st.seenHelp) {
+    // ничего не показываем: подсказка для новичка выше
+  } else if (!Object.keys(st.schedule || {}).length) {
+    root.appendChild(h('a', { class: 'card', href: '#/plan' }, [
+      h('div', { class: 'row between center' }, [
+        h('div', { class: 'grow' }, [
+          h('h3', { class: 'card-title', text: '🗓 Составьте план недели' }),
+          h('p', { class: 'muted small', text: 'Например, футбол по четвергам и субботам — тренер будет учитывать игры при подборе тренировок.' })
+        ]),
+        h('span', { class: 'chev', text: '›' })
+      ])
+    ]));
+  }
+
+  // Завтра игра — подсказка тренера
+  if (tomorrowEntry && tomorrowEntry.type === 'football' && !st.session) {
+    root.appendChild(h('a', { class: 'card info', href: '#/coach' }, [
+      h('div', { class: 'row between center' }, [
+        h('div', { class: 'grow' }, [
+          h('h3', { class: 'card-title', text: '⚽️ Завтра игра' }),
+          h('p', { class: 'muted small', text: 'Спросите тренера, что сделать сегодня, чтобы ноги не были деревянными.' })
+        ]),
+        h('span', { class: 'chev', text: '›' })
+      ])
+    ]));
+  }
+
   // Следующая тренировка по программе
   const ap = st.activeProgram;
-  const prog = ap ? S.programById(ap.id) : null;
+  const prog = ap && !planCoversToday ? S.programById(ap.id) : null;
   if (prog) {
     const di = (ap.nextDay || 0) % prog.days.length;
     const day = prog.days[di];
@@ -129,8 +195,8 @@ export function render() {
       S.startSession({ title: 'Своя тренировка', items: [] });
       location.hash = '#/workout';
     }),
-    quickTile('⏱', 'Таймеры', () => { location.hash = '#/tools'; }),
-    quickTile('🎬', 'Упражнения', () => { location.hash = '#/exercises'; }),
+    quickTile('💬', 'Спросить тренера', () => { location.hash = '#/coach'; }),
+    quickTile('🗓', 'План недели', () => { location.hash = '#/plan'; }),
     quickTile('🏆', 'Достижения', () => { location.hash = '#/achievements'; }),
     quickTile('⚽️', 'Записать футбол', () => { location.hash = '#/football'; }),
     quickTile('🔁', 'Повторить последнюю', () => {
