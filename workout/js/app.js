@@ -19,13 +19,15 @@ import * as Help from './views/help.js';
 import * as Football from './views/football.js';
 import * as Profiles from './views/profiles.js';
 import * as Achievements from './views/achievements.js';
+import * as CoachView from './views/coach.js';
+import * as Plan from './views/plan.js';
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.3.0';
 
 const ROUTES = [
   [/^\/?$/,                 () => Home.render(),                'Главная',      'home'],
-  [/^\/programs$/,          () => Programs.render(),            'Программы',    'programs'],
-  [/^\/program\/(.+)$/,     m => Programs.renderDetail(m[1]),   'Программа',    'programs'],
+  [/^\/programs$/,          () => Programs.render(),            'Программы',    'more'],
+  [/^\/program\/(.+)$/,     m => Programs.renderDetail(m[1]),   'Программа',    'more'],
   [/^\/exercises$/,         () => Exercises.render(),           'Упражнения',   'more'],
   [/^\/exercise\/(.+)$/,    m => Exercises.renderDetail(m[1]),  'Упражнение',   'more'],
   [/^\/workout$/,           () => Workout.render(),             'Тренировка',   'home'],
@@ -43,12 +45,14 @@ const ROUTES = [
   [/^\/football$/,          () => Football.render(),            'Футбол',       'football'],
   [/^\/football\/(.+)$/,    m => Football.render(m[1]),         'Футбол',       'football'],
   [/^\/profiles$/,          () => Profiles.render(),            'Профили',      'more'],
-  [/^\/achievements$/,      () => Achievements.render(),        'Достижения',   'stats']
+  [/^\/achievements$/,      () => Achievements.render(),        'Достижения',   'stats'],
+  [/^\/coach$/,             () => CoachView.render(),           'Тренер',       'coach'],
+  [/^\/plan$/,              () => Plan.render(),                'План недели',  'home']
 ];
 
 const TABS = [
   ['home', '#/', '🏠', 'Главная'],
-  ['programs', '#/programs', '📋', 'Программы'],
+  ['coach', '#/coach', '💬', 'Тренер'],
   ['football', '#/football', '⚽️', 'Футбол'],
   ['stats', '#/stats', '📈', 'Прогресс'],
   ['more', '#/more', '⋯', 'Ещё']

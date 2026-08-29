@@ -22,8 +22,12 @@ const DEFAULTS = {
     barWeight: 20,
     plates: [25, 20, 15, 10, 5, 2.5, 1.25],
     weeklyGoal: 3,
-    name: ''
+    name: '',
+    aiModel: 'claude-opus-5',
+    place: 'gym'            // где тренируетесь по умолчанию: gym | home | outdoor
   },
+  schedule: {},             // '1'..'7' (Пн..Вс) -> { type, ... }
+  chat: [],                 // история переписки с тренером
   activeProgram: null,      // { id, startedAt, nextDay }
   session: null,            // текущая тренировка
   history: [],              // завершённые тренировки
@@ -497,6 +501,65 @@ export function importData(json) {
   Object.assign(state, merge(DEFAULTS, incoming));
   save();
   return { reload: false };
+}
+
+// ------------------------------------------------------------------ недельный план
+export const WEEKDAYS = [
+  { n: 1, short: 'Пн', full: 'Понедельник' },
+  { n: 2, short: 'Вт', full: 'Вторник' },
+  { n: 3, short: 'Ср', full: 'Среда' },
+  { n: 4, short: 'Чт', full: 'Четверг' },
+  { n: 5, short: 'Пт', full: 'Пятница' },
+  { n: 6, short: 'Сб', full: 'Суббота' },
+  { n: 7, short: 'Вс', full: 'Воскресенье' }
+];
+
+/** Номер дня недели по ISO: понедельник = 1, воскресенье = 7. */
+export function isoDay(ts = Date.now()) {
+  return ((new Date(ts).getDay() + 6) % 7) + 1;
+}
+
+export function planFor(day) {
+  return state.schedule[String(day)] || null;
+}
+
+export function setPlan(day, entry) {
+  if (entry) state.schedule[String(day)] = entry;
+  else delete state.schedule[String(day)];
+  save();
+}
+
+export function todayPlan() { return planFor(isoDay()); }
+export function tomorrowPlan() { return planFor(isoDay(Date.now() + 864e5)); }
+
+/** Человеческое описание пункта плана. */
+export function planLabel(entry) {
+  if (!entry) return null;
+  if (entry.type === 'rest') return { icon: '😴', title: 'Отдых', sub: 'Восстановление' };
+  if (entry.type === 'football') {
+    const t = FOOTBALL_TYPES[entry.fbType] || FOOTBALL_TYPES.training;
+    return { icon: t.icon, title: t.name, sub: 'Футбол' };
+  }
+  if (entry.type === 'program') {
+    const p = programById(entry.programId);
+    if (!p) return { icon: '🏋️', title: 'Тренировка', sub: '' };
+    const d = p.days[entry.dayIndex] || p.days[0];
+    return { icon: '🏋️', title: d ? d.title : p.name, sub: p.name };
+  }
+  if (entry.type === 'program_auto') {
+    const p = state.activeProgram ? programById(state.activeProgram.id) : null;
+    if (!p) return { icon: '🏋️', title: 'Тренировка по программе', sub: 'Программа не выбрана' };
+    const di = (state.activeProgram.nextDay || 0) % p.days.length;
+    return { icon: '🏋️', title: p.days[di].title, sub: p.name };
+  }
+  if (entry.type === 'note') return { icon: '📝', title: entry.text || 'Своя тренировка', sub: '' };
+  return null;
+}
+
+/** Быстрый пресет: футбол в указанные дни недели. */
+export function setFootballDays(days, fbType = 'training') {
+  days.forEach(d => { state.schedule[String(d)] = { type: 'football', fbType }; });
+  save();
 }
 
 // ------------------------------------------------------------------ футбол
